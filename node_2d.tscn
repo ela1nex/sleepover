@@ -1,11 +1,20 @@
 [gd_scene format=3 uid="uid://ce5iggpo6b5at"]
 
+[ext_resource type="Script" uid="uid://d2j8qv58ptdyw" path="res://character_body_2d.gd" id="1_0e48y"]
+[ext_resource type="SpriteFrames" path="/Users/elainexia/snoozefest/oc.gif" id="2_epypp"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0e48y"]
+size = Vector2(11, 23)
+
 [node name="Node2D" type="Node2D" unique_id=1150385625]
 
 [node name="CharacterBody2D" type="CharacterBody2D" parent="." unique_id=1684361268]
+script = ExtResource("1_0e48y")
 
-[node name="Sprite2D" type="Sprite2D" parent="CharacterBody2D" unique_id=150763974]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="CharacterBody2D" unique_id=1919400403]
+sprite_frames = ExtResource("2_epypp")
+frame_progress = 0.81623346
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D" unique_id=374812337]
-
-[node name="PointLight2D" type="PointLight2D" parent="CharacterBody2D" unique_id=814132440]
+position = Vector2(0.5, 1.5)
+shape = SubResource("RectangleShape2D_0e48y")
