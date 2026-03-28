@@ -11,6 +11,19 @@
 [ext_resource type="Texture2D" uid="uid://d3s8vwf8m0bp" path="res://well2.png" id="8_4d7sh"]
 [ext_resource type="Texture2D" uid="uid://05itjv7m2puv" path="res://grass.png" id="9_4d7sh"]
 
+[sub_resource type="GDScript" id="GDScript_x0ka3"]
+script/source = "extends Node2D
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	pass
+"
+
 [sub_resource type="GDScript" id="GDScript_4d7sh"]
 script/source = "extends CharacterBody2D
 
@@ -21,8 +34,13 @@ const JUMP_VELOCITY = -200.0
 var idle_timer = 0
 var collected_whispers = []
 @export var max_whispers = 5
+var total_deposited = 0
+var can_deposit = false
+var deposit_node = null
 
 func _process(delta: float) -> void:
+	if can_deposit:
+		deposit()
 	$RichTextLabel.text = \"[font_size=16][pulse freq=0.5]\"+str(collected_whispers.size())+\"[/pulse]\"
 
 func _physics_process(delta: float) -> void:
@@ -56,6 +74,15 @@ func collect_whisper(whisper):
 		return
 	collected_whispers.append(whisper)
 	whisper.queue_free()
+
+func set_deposit_zone(state, node):
+	can_deposit = state
+	deposit_node = node
+
+func deposit():
+	total_deposited += collected_whispers.size();
+	collected_whispers.clear()
+	deposit_node.update_world(total_deposited)
 "
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0h7mo"]
@@ -168,8 +195,51 @@ fill_from = Vector2(0.5, 0.5)
 fill_to = Vector2(0.8, 0.2)
 metadata/_snap_enabled = true
 
+[sub_resource type="GDScript" id="GDScript_ir8iy"]
+script/source = "extends Area2D
+
+@onready var world = get_node(\"/root/Node2D/World\")
+
+func _ready() -> void:
+	body_entered.connect(_on_body_entered)
+	body_exited.connect(_on_body_exited)
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	pass
+
+func _on_body_entered(body):
+	if body.has_method(\"set_deposit_zone\"):
+		body.set_deposit_zone(true, self)
+	
+func _on_body_exited(body):
+	if body.has_method(\"set_deposit_zone\"):
+		body.set_deposit_zone(false, self)
+
+func update_world(amount):
+	world.update_state(amount)
+"
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rj586"]
 size = Vector2(44, 54)
+
+[sub_resource type="GDScript" id="GDScript_hqns4"]
+script/source = "extends Node2D
+
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	pass
+
+func update_state(amount):
+	pass
+"
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4d7sh"]
 texture = ExtResource("9_4d7sh")
@@ -187,6 +257,7 @@ physics_layer_0/collision_layer = 1
 sources/0 = SubResource("TileSetAtlasSource_4d7sh")
 
 [node name="Node2D" type="Node2D" unique_id=1150385625]
+script = SubResource("GDScript_x0ka3")
 
 [node name="Player" type="CharacterBody2D" parent="." unique_id=1347101436]
 script = SubResource("GDScript_4d7sh")
@@ -230,6 +301,7 @@ position = Vector2(0, -11.758503)
 texture = SubResource("GradientTexture2D_ir8iy")
 
 [node name="Deposit" type="Area2D" parent="." unique_id=1133267422]
+script = SubResource("GDScript_ir8iy")
 
 [node name="Sprite2D" type="Sprite2D" parent="Deposit" unique_id=950003289]
 position = Vector2(-36, -10)
@@ -240,6 +312,7 @@ position = Vector2(-36, -11)
 shape = SubResource("RectangleShape2D_rj586")
 
 [node name="World" type="Node2D" parent="." unique_id=1058849910]
+script = SubResource("GDScript_hqns4")
 
 [node name="Node2D" type="Node2D" parent="World" unique_id=664125765]
 
@@ -250,3 +323,5 @@ tile_set = SubResource("TileSet_4d7sh")
 [node name="Node2D2" type="Node2D" parent="World" unique_id=409691625]
 
 [node name="Node2D3" type="Node2D" parent="World" unique_id=209361400]
+
+[node name="Timer" type="Timer" parent="." unique_id=152233171]
