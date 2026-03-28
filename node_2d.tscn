@@ -19,7 +19,11 @@ const JUMP_VELOCITY = -200.0
 
 @onready var _animated_sprite = $AnimatedSprite2D
 var idle_timer = 0
+var collected_whispers = []
+@export var max_whispers = 5
 
+func _process(delta: float) -> void:
+	$RichTextLabel.text = \"[font_size=16][pulse freq=0.5]\"+str(collected_whispers.size())+\"[/pulse]\"
 
 func _physics_process(delta: float) -> void:
 	# Add the gravity.
@@ -40,11 +44,18 @@ func _physics_process(delta: float) -> void:
 		idle_timer = 0
 	else:
 		velocity.x = move_toward(velocity.x, 0, SPEED)
+		_animated_sprite.stop()
 		idle_timer += 1
 		if idle_timer == 25:
 			_animated_sprite.play(\"idle\")
 
 	move_and_slide()
+
+func collect_whisper(whisper):
+	if collected_whispers.size() >= max_whispers:
+		return
+	collected_whispers.append(whisper)
+	whisper.queue_free()
 "
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0h7mo"]
@@ -89,13 +100,13 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_0h7mo")
 }, {
-"duration": 1.0,
+"duration": 1.5,
 "texture": SubResource("AtlasTexture_nr8wp")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_d2bti")
 }, {
-"duration": 1.0,
+"duration": 1.5,
 "texture": SubResource("AtlasTexture_ta5nu")
 }],
 "loop": true,
@@ -158,7 +169,7 @@ fill_to = Vector2(0.8, 0.2)
 metadata/_snap_enabled = true
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rj586"]
-size = Vector2(16, 18)
+size = Vector2(44, 54)
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4d7sh"]
 texture = ExtResource("9_4d7sh")
@@ -177,49 +188,65 @@ sources/0 = SubResource("TileSetAtlasSource_4d7sh")
 
 [node name="Node2D" type="Node2D" unique_id=1150385625]
 
-[node name="CharacterBody2D2" type="CharacterBody2D" parent="." unique_id=1347101436]
+[node name="Player" type="CharacterBody2D" parent="." unique_id=1347101436]
 script = SubResource("GDScript_4d7sh")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="CharacterBody2D2" unique_id=1880865069]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Player" unique_id=1880865069]
 sprite_frames = SubResource("SpriteFrames_hqns4")
 animation = &"walk"
 autoplay = "idle"
-frame_progress = 0.5502702
+frame_progress = 0.50814575
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D2" unique_id=463317705]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player" unique_id=463317705]
 shape = SubResource("RectangleShape2D_0e48y")
 
-[node name="Camera2D" type="Camera2D" parent="CharacterBody2D2" unique_id=459950474]
-zoom = Vector2(10, 10)
+[node name="Camera2D" type="Camera2D" parent="Player" unique_id=459950474]
+zoom = Vector2(7, 7)
 
-[node name="Area2D" type="Area2D" parent="." unique_id=629463437]
+[node name="RichTextLabel" type="RichTextLabel" parent="Player" unique_id=961201382]
+offset_left = -81.0
+offset_top = -45.0
+offset_right = -62.0
+offset_bottom = -23.0
+scale = Vector2(0.5, 0.5)
+bbcode_enabled = true
+
+[node name="Whisper" type="Area2D" parent="." unique_id=629463437]
 position = Vector2(20, 16)
 script = ExtResource("7_rj586")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Area2D" unique_id=56381631]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Whisper" unique_id=56381631]
 position = Vector2(0, -11.758503)
 sprite_frames = SubResource("SpriteFrames_x0ka3")
 autoplay = "default"
 frame_progress = 0.10575963
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=440690187]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Whisper" unique_id=440690187]
 position = Vector2(0, -11.758503)
 shape = SubResource("RectangleShape2D_0h7mo")
 
-[node name="PointLight2D" type="PointLight2D" parent="Area2D" unique_id=1065795397]
+[node name="PointLight2D" type="PointLight2D" parent="Whisper" unique_id=1065795397]
 position = Vector2(0, -11.758503)
 texture = SubResource("GradientTexture2D_ir8iy")
 
-[node name="Area2D2" type="Area2D" parent="." unique_id=1133267422]
+[node name="Deposit" type="Area2D" parent="." unique_id=1133267422]
 
-[node name="Sprite2D" type="Sprite2D" parent="Area2D2" unique_id=950003289]
+[node name="Sprite2D" type="Sprite2D" parent="Deposit" unique_id=950003289]
 position = Vector2(-36, -10)
 texture = ExtResource("8_4d7sh")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D2" unique_id=290177445]
-position = Vector2(-37, 7)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Deposit" unique_id=290177445]
+position = Vector2(-36, -11)
 shape = SubResource("RectangleShape2D_rj586")
 
-[node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=1604279617]
+[node name="World" type="Node2D" parent="." unique_id=1058849910]
+
+[node name="Node2D" type="Node2D" parent="World" unique_id=664125765]
+
+[node name="Map" type="TileMapLayer" parent="World/Node2D" unique_id=1604279617]
 tile_map_data = PackedByteArray("AAD9/wEAAAAAAAAAAAD+/wEAAAABAAAAAAD//wEAAAAAAAAAAAAAAAEAAAABAAAAAAABAAEAAAAAAAAAAAACAAEAAAABAAAAAAADAAAAAAAAAAAAAAAEAAAAAAABAAAAAAAFAP//AAAAAAAAAAAGAP//AAABAAAAAAAHAAAAAAAAAAAAAAAIAAAAAAABAAAAAAD7/wEAAAAAAAAAAAD8/wEAAAABAAAAAAD5/wAAAAAAAAAAAAD6/wAAAAABAAAAAAD3////AAAAAAAAAAD4////AAABAAAAAAAJAAAAAAAAAAAAAAAKAAAAAAABAAAAAAALAP//AAAAAAAAAAAMAP//AAABAAAAAAD1//7/AAAAAAAAAAD2//7/AAABAAAAAAA=")
 tile_set = SubResource("TileSet_4d7sh")
+
+[node name="Node2D2" type="Node2D" parent="World" unique_id=409691625]
+
+[node name="Node2D3" type="Node2D" parent="World" unique_id=209361400]
