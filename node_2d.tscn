@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://ce5iggpo6b5at"]
+[gd_scene format=3 uid="uid://keadh5sxvx77"]
 
 [ext_resource type="Script" uid="uid://d2j8qv58ptdyw" path="res://character_body_2d.gd" id="1_0e48y"]
 [ext_resource type="Texture2D" uid="uid://dxxn65c6u3dwt" path="res://addons/addons/frame_0_delay-0.5s.png" id="2_kdubu"]
@@ -6,6 +6,9 @@
 [ext_resource type="Texture2D" uid="uid://clwwq83a7paip" path="res://addons/addons/frame_2_delay-0.5s.png" id="4_rj586"]
 [ext_resource type="Texture2D" uid="uid://3cnp5bdy6152" path="res://addons/addons/frame_3_delay-0.5s.png" id="5_4d7sh"]
 [ext_resource type="Texture2D" uid="uid://cylna6xeqqw8b" path="res://addons/addons/frame_4_delay-0.5s.png" id="6_ir8iy"]
+[ext_resource type="Texture2D" uid="uid://u0tgqxawo2m8" path="res://light.png" id="7_d21ai"]
+[ext_resource type="Script" uid="uid://yl5cpgskwyeo" path="res://area_2d.gd" id="7_rj586"]
+[ext_resource type="Texture2D" uid="uid://05itjv7m2puv" path="res://Untitled 3.png" id="9_4d7sh"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_hqns4"]
 animations = [{
@@ -31,21 +34,91 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0e48y"]
-size = Vector2(11, 23)
+size = Vector2(11, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rj586"]
+atlas = ExtResource("7_d21ai")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4d7sh"]
+atlas = ExtResource("7_d21ai")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ir8iy"]
+atlas = ExtResource("7_d21ai")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hqns4"]
+atlas = ExtResource("7_d21ai")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_x0ka3"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rj586")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4d7sh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ir8iy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hqns4")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0h7mo"]
+size = Vector2(14, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rj586"]
+
+[sub_resource type="TileSet" id="TileSet_4d7sh"]
 
 [node name="Node2D" type="Node2D" unique_id=1150385625]
 
 [node name="CharacterBody2D" type="CharacterBody2D" parent="." unique_id=1684361268]
+position = Vector2(0, 202089.3)
+velocity = Vector2(0, 19894.01)
 script = ExtResource("1_0e48y")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="CharacterBody2D" unique_id=1919400403]
 sprite_frames = SubResource("SpriteFrames_hqns4")
 animation = &"idle"
 autoplay = "idle"
+frame_progress = 0.65411747
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D" unique_id=374812337]
-position = Vector2(0.5, 1.5)
 shape = SubResource("RectangleShape2D_0e48y")
 
 [node name="Camera2D" type="Camera2D" parent="CharacterBody2D" unique_id=1429289977]
 zoom = Vector2(10, 10)
+
+[node name="Area2D" type="Area2D" parent="." unique_id=629463437]
+position = Vector2(0, 11.758503)
+script = ExtResource("7_rj586")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Area2D" unique_id=56381631]
+sprite_frames = SubResource("SpriteFrames_x0ka3")
+autoplay = "default"
+frame_progress = 0.10575963
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=440690187]
+shape = SubResource("RectangleShape2D_0h7mo")
+
+[node name="Area2D2" type="Area2D" parent="." unique_id=1133267422]
+
+[node name="Sprite2D" type="Sprite2D" parent="Area2D2" unique_id=950003289]
+position = Vector2(-37, 2)
+texture = ExtResource("9_4d7sh")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D2" unique_id=290177445]
+position = Vector2(-37, 0)
+shape = SubResource("RectangleShape2D_rj586")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=1604279617]
+tile_set = SubResource("TileSet_4d7sh")
