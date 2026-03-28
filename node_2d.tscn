@@ -1,6 +1,5 @@
-[gd_scene format=3 uid="uid://keadh5sxvx77"]
+[gd_scene format=4 uid="uid://keadh5sxvx77"]
 
-[ext_resource type="Script" uid="uid://d2j8qv58ptdyw" path="res://character_body_2d.gd" id="1_0e48y"]
 [ext_resource type="Texture2D" uid="uid://dxxn65c6u3dwt" path="res://addons/addons/frame_0_delay-0.5s.png" id="2_kdubu"]
 [ext_resource type="Texture2D" uid="uid://cuquoqp0lastf" path="res://addons/addons/frame_1_delay-0.5s.png" id="3_d21ai"]
 [ext_resource type="Texture2D" uid="uid://clwwq83a7paip" path="res://addons/addons/frame_2_delay-0.5s.png" id="4_rj586"]
@@ -8,7 +7,36 @@
 [ext_resource type="Texture2D" uid="uid://cylna6xeqqw8b" path="res://addons/addons/frame_4_delay-0.5s.png" id="6_ir8iy"]
 [ext_resource type="Texture2D" uid="uid://u0tgqxawo2m8" path="res://light.png" id="7_d21ai"]
 [ext_resource type="Script" uid="uid://yl5cpgskwyeo" path="res://area_2d.gd" id="7_rj586"]
-[ext_resource type="Texture2D" uid="uid://05itjv7m2puv" path="res://Untitled 3.png" id="9_4d7sh"]
+[ext_resource type="Texture2D" uid="uid://tmac5h2jowdb" path="res://well.png" id="8_4d7sh"]
+[ext_resource type="Texture2D" uid="uid://05itjv7m2puv" path="res://grass.png" id="9_4d7sh"]
+
+[sub_resource type="GDScript" id="GDScript_4d7sh"]
+script/source = "extends CharacterBody2D
+
+
+const SPEED = 300.0
+const JUMP_VELOCITY = -400.0
+
+
+func _physics_process(delta: float) -> void:
+	# Add the gravity.
+	if not is_on_floor():
+		velocity += get_gravity() * delta
+
+	# Handle jump.
+	if Input.is_action_just_pressed(\"ui_accept\") and is_on_floor():
+		velocity.y = JUMP_VELOCITY
+
+	# Get the input direction and handle the movement/deceleration.
+	# As good practice, you should replace UI actions with custom gameplay actions.
+	var direction := Input.get_axis(\"ui_left\", \"ui_right\")
+	if direction:
+		velocity.x = direction * SPEED
+	else:
+		velocity.x = move_toward(velocity.x, 0, SPEED)
+
+	move_and_slide()
+"
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_hqns4"]
 animations = [{
@@ -75,50 +103,81 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0h7mo"]
 size = Vector2(14, 20)
 
+[sub_resource type="Gradient" id="Gradient_4d7sh"]
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ir8iy"]
+gradient = SubResource("Gradient_4d7sh")
+width = 32
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.8, 0.2)
+metadata/_snap_enabled = true
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rj586"]
+size = Vector2(16, 18)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4d7sh"]
+texture = ExtResource("9_4d7sh")
+0:0/0 = 0
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+1:0/0 = 0
+1:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+0:1/0 = 0
+0:1/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+1:1/0 = 0
+1:1/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 
 [sub_resource type="TileSet" id="TileSet_4d7sh"]
+physics_layer_0/collision_layer = 1
+sources/0 = SubResource("TileSetAtlasSource_4d7sh")
 
 [node name="Node2D" type="Node2D" unique_id=1150385625]
 
-[node name="CharacterBody2D" type="CharacterBody2D" parent="." unique_id=1684361268]
-position = Vector2(0, 202089.3)
-velocity = Vector2(0, 19894.01)
-script = ExtResource("1_0e48y")
+[node name="CharacterBody2D2" type="CharacterBody2D" parent="." unique_id=1347101436]
+script = SubResource("GDScript_4d7sh")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="CharacterBody2D" unique_id=1919400403]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="CharacterBody2D2" unique_id=1880865069]
 sprite_frames = SubResource("SpriteFrames_hqns4")
 animation = &"idle"
 autoplay = "idle"
 frame_progress = 0.65411747
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D" unique_id=374812337]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D2" unique_id=463317705]
 shape = SubResource("RectangleShape2D_0e48y")
 
-[node name="Camera2D" type="Camera2D" parent="CharacterBody2D" unique_id=1429289977]
+[node name="Camera2D" type="Camera2D" parent="CharacterBody2D2" unique_id=459950474]
 zoom = Vector2(10, 10)
 
 [node name="Area2D" type="Area2D" parent="." unique_id=629463437]
-position = Vector2(0, 11.758503)
+position = Vector2(20, 16)
 script = ExtResource("7_rj586")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Area2D" unique_id=56381631]
+position = Vector2(0, -11.758503)
 sprite_frames = SubResource("SpriteFrames_x0ka3")
 autoplay = "default"
 frame_progress = 0.10575963
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=440690187]
+position = Vector2(0, -11.758503)
 shape = SubResource("RectangleShape2D_0h7mo")
+
+[node name="PointLight2D" type="PointLight2D" parent="Area2D" unique_id=1065795397]
+position = Vector2(0, -11.758503)
+texture = SubResource("GradientTexture2D_ir8iy")
 
 [node name="Area2D2" type="Area2D" parent="." unique_id=1133267422]
 
 [node name="Sprite2D" type="Sprite2D" parent="Area2D2" unique_id=950003289]
-position = Vector2(-37, 2)
-texture = ExtResource("9_4d7sh")
+position = Vector2(-37, 9)
+texture = ExtResource("8_4d7sh")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D2" unique_id=290177445]
-position = Vector2(-37, 0)
+position = Vector2(-37, 7)
 shape = SubResource("RectangleShape2D_rj586")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=1604279617]
+tile_map_data = PackedByteArray("AAD9/wEAAAAAAAAAAAD+/wEAAAABAAAAAAD//wEAAAAAAAAAAAAAAAEAAAABAAAAAAABAAEAAAAAAAAAAAACAAEAAAABAAAAAAADAAAAAAAAAAAAAAAEAAAAAAABAAAAAAAFAP//AAAAAAAAAAAGAP//AAABAAAAAAAHAAAAAAAAAAAAAAAIAAAAAAABAAAAAAD7/wEAAAAAAAAAAAD8/wEAAAABAAAAAAD5/wAAAAAAAAAAAAD6/wAAAAABAAAAAAD3////AAAAAAAAAAD4////AAABAAAAAAAJAAAAAAAAAAAAAAAKAAAAAAABAAAAAAALAP//AAAAAAAAAAAMAP//AAABAAAAAAD1//7/AAAAAAAAAAD2//7/AAABAAAAAAA=")
 tile_set = SubResource("TileSet_4d7sh")
