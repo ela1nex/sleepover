@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://cxwhpeed2w1df"
+path="res://.godot/imported/old city theme.ogg-967b7cb00dfd5068bb08b2ab8c2d3089.oggvorbisstr"
+
+[deps]
+
+source_file="res://old city theme.ogg"
+dest_files=["res://.godot/imported/old city theme.ogg-967b7cb00dfd5068bb08b2ab8c2d3089.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

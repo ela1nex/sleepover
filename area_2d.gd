@@ -11,5 +11,7 @@ func _process(delta: float) -> void:
 	
 func _on_body_entered(body) -> void:
 	if body.has_method("collect_whisper"):
+		
 		body.collect_whisper(self)
+		
 	
