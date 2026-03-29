@@ -1,0 +1,73 @@
+[gd_scene format=3 uid="uid://xwdk5ujmbvdy"]
+
+[ext_resource type="Script" uid="uid://yl5cpgskwyeo" path="res://area_2d.gd" id="1_wx4fh"]
+[ext_resource type="Texture2D" uid="uid://u0tgqxawo2m8" path="res://light.png" id="2_4j02f"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rj586"]
+atlas = ExtResource("2_4j02f")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4d7sh"]
+atlas = ExtResource("2_4j02f")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ir8iy"]
+atlas = ExtResource("2_4j02f")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hqns4"]
+atlas = ExtResource("2_4j02f")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_x0ka3"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rj586")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4d7sh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ir8iy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hqns4")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0h7mo"]
+size = Vector2(14, 20)
+
+[sub_resource type="Gradient" id="Gradient_4d7sh"]
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_ir8iy"]
+gradient = SubResource("Gradient_4d7sh")
+width = 32
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.8, 0.2)
+metadata/_snap_enabled = true
+
+[node name="Whisper" type="Area2D" unique_id=1109327850]
+z_index = 1
+script = ExtResource("1_wx4fh")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=381695919]
+position = Vector2(0, -11.758503)
+sprite_frames = SubResource("SpriteFrames_x0ka3")
+autoplay = "default"
+frame_progress = 0.10575963
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=779514845]
+position = Vector2(0, -11.758503)
+shape = SubResource("RectangleShape2D_0h7mo")
+
+[node name="PointLight2D" type="PointLight2D" parent="." unique_id=195746310]
+position = Vector2(0, -11.758503)
+texture = SubResource("GradientTexture2D_ir8iy")

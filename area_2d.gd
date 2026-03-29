@@ -1,9 +1,11 @@
 extends Area2D
 
+
 var float_time = 0.0
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
+	position.y = 10.0
 	
 func _process(delta: float) -> void:
 	float_time += delta
@@ -11,7 +13,6 @@ func _process(delta: float) -> void:
 	
 func _on_body_entered(body) -> void:
 	if body.has_method("collect_whisper"):
-		
 		body.collect_whisper(self)
-		
+		self.queue_free()
 	

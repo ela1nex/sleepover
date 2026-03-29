@@ -6,28 +6,36 @@
 [ext_resource type="Texture2D" uid="uid://3cnp5bdy6152" path="res://addons/addons/frame_3_delay-0.5s.png" id="5_4d7sh"]
 [ext_resource type="Texture2D" uid="uid://ccxcskjim4t5r" path="res://walking.png" id="6_hqns4"]
 [ext_resource type="Texture2D" uid="uid://cylna6xeqqw8b" path="res://addons/addons/frame_4_delay-0.5s.png" id="6_ir8iy"]
-[ext_resource type="Texture2D" uid="uid://u0tgqxawo2m8" path="res://light.png" id="7_d21ai"]
-[ext_resource type="Script" uid="uid://yl5cpgskwyeo" path="res://area_2d.gd" id="7_rj586"]
 [ext_resource type="Texture2D" uid="uid://d3s8vwf8m0bp" path="res://well2.png" id="8_4d7sh"]
 [ext_resource type="AudioStream" uid="uid://byculjeqgssnr" path="res://health_restore.wav" id="8_x0ka3"]
 [ext_resource type="AudioStream" uid="uid://cgrydim6k2yan" path="res://03_Step_grass_03.wav" id="9_0h7mo"]
 [ext_resource type="Texture2D" uid="uid://05itjv7m2puv" path="res://grass.png" id="9_4d7sh"]
 [ext_resource type="AudioStream" uid="uid://5gp6ufv4hp0r" path="res://gem-gather-stereo-reverb.wav" id="9_hqns4"]
 [ext_resource type="Texture2D" uid="uid://dxv3v7hbcw4jh" path="res://whisper floating.png" id="10_d2bti"]
+[ext_resource type="PackedScene" uid="uid://xwdk5ujmbvdy" path="res://whisper.tscn" id="12_d2bti"]
 [ext_resource type="AudioStream" uid="uid://cxwhpeed2w1df" path="res://old city theme.ogg" id="14_nr8wp"]
 [ext_resource type="Texture2D" uid="uid://bwuf2bxrqafki" path="res://bg.png" id="15_ta5nu"]
 
 [sub_resource type="GDScript" id="GDScript_x0ka3"]
 script/source = "extends Node2D
-
+var whisper_scene = preload(\"res://Whisper.tscn\")
 # Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
-
+func _ready():
+	for i in range(10):
+		var w = whisper_scene.instantiate()
+		w.global_position = Vector2(randf()*500, randf()*10)
+		$Node2D.add_child(w)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
+
+@onready var mat = $Player/CanvasLayer/ColorRect.material
+
+func update_state(amount):
+	var t = clamp(amount / 30.0, 0.0, 1.0)
+	t = t * t
+	mat.set_shader_parameter(\"color_amount\", t)
 "
 
 [sub_resource type="GDScript" id="GDScript_4d7sh"]
@@ -95,7 +103,6 @@ func collect_whisper(whisper):
 	if collected_whispers.size() >= max_whispers:
 		return
 	$AudioStreamPlayer2D.play()
-	whisper.queue_free()
 	collected_whispers.append(whisper)
 
 func set_deposit_zone(state, node):
@@ -255,56 +262,26 @@ animations = [{
 "speed": 2.0
 }]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_rj586"]
-atlas = ExtResource("7_d21ai")
-region = Rect2(0, 0, 32, 32)
+[sub_resource type="Shader" id="Shader_ta5nu"]
+code = "shader_type canvas_item;
+uniform sampler2D SCREEN_TEXTURE : hint_screen_texture, filter_linear_mipmap;
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_4d7sh"]
-atlas = ExtResource("7_d21ai")
-region = Rect2(32, 0, 32, 32)
+uniform float color_amount : hint_range(0.0, 1.0) = 0.0;
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_ir8iy"]
-atlas = ExtResource("7_d21ai")
-region = Rect2(64, 0, 32, 32)
+void fragment() {
+    vec4 tex = texture(SCREEN_TEXTURE, SCREEN_UV);
+    
+    float gray = dot(tex.rgb, vec3(0.299, 0.587, 0.114));
+    vec3 grayscale = vec3(gray);
+    
+    vec3 final_color = mix(grayscale, tex.rgb, color_amount);
+    
+    COLOR = vec4(final_color, 1.0);
+}"
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_hqns4"]
-atlas = ExtResource("7_d21ai")
-region = Rect2(96, 0, 32, 32)
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_x0ka3"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_rj586")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_4d7sh")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_ir8iy")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_hqns4")
-}],
-"loop": true,
-"name": &"default",
-"speed": 2.0
-}]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_0h7mo"]
-size = Vector2(14, 20)
-
-[sub_resource type="Gradient" id="Gradient_4d7sh"]
-colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
-
-[sub_resource type="GradientTexture2D" id="GradientTexture2D_ir8iy"]
-gradient = SubResource("Gradient_4d7sh")
-width = 32
-height = 32
-fill = 1
-fill_from = Vector2(0.5, 0.5)
-fill_to = Vector2(0.8, 0.2)
-metadata/_snap_enabled = true
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_flf07"]
+shader = SubResource("Shader_ta5nu")
+shader_parameter/color_amount = 0.0
 
 [sub_resource type="GDScript" id="GDScript_ir8iy"]
 script/source = "extends Area2D
@@ -351,6 +328,8 @@ func _process(delta: float) -> void:
 func update_state(amount):
 	pass
 "
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_ta5nu"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4d7sh"]
 texture = ExtResource("9_4d7sh")
@@ -417,24 +396,23 @@ position = Vector2(5.2452087e-06, 0.5000038)
 scale = Vector2(1.28125, 1.4843751)
 sprite_frames = SubResource("SpriteFrames_1fr6y")
 
-[node name="Whisper" type="Area2D" parent="." unique_id=629463437]
-z_index = 1
+[node name="CanvasLayer" type="CanvasLayer" parent="Player" unique_id=797195720]
+layer = 3
+scale = Vector2(100, 100)
+transform = Transform2D(100, 0, 0, 100, 0, 0)
+
+[node name="ColorRect" type="ColorRect" parent="Player/CanvasLayer" unique_id=586224171]
+material = SubResource("ShaderMaterial_flf07")
+offset_left = -82.0
+offset_top = -47.0
+offset_right = 84.0
+offset_bottom = 52.0
+metadata/_edit_use_anchors_ = true
+
+[node name="Node2D" type="Node2D" parent="." unique_id=328492645]
+
+[node name="Whisper" parent="Node2D" unique_id=1109327850 instance=ExtResource("12_d2bti")]
 position = Vector2(20, 16)
-script = ExtResource("7_rj586")
-
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Whisper" unique_id=56381631]
-position = Vector2(0, -11.758503)
-sprite_frames = SubResource("SpriteFrames_x0ka3")
-autoplay = "default"
-frame_progress = 0.10575963
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Whisper" unique_id=440690187]
-position = Vector2(0, -11.758503)
-shape = SubResource("RectangleShape2D_0h7mo")
-
-[node name="PointLight2D" type="PointLight2D" parent="Whisper" unique_id=1065795397]
-position = Vector2(0, -11.758503)
-texture = SubResource("GradientTexture2D_ir8iy")
 
 [node name="Deposit" type="Area2D" parent="." unique_id=1133267422]
 script = SubResource("GDScript_ir8iy")
@@ -453,6 +431,7 @@ script = SubResource("GDScript_hqns4")
 [node name="Node2D" type="Node2D" parent="World" unique_id=664125765]
 
 [node name="Map" type="TileMapLayer" parent="World/Node2D" unique_id=1604279617]
+material = SubResource("CanvasItemMaterial_ta5nu")
 tile_map_data = PackedByteArray("AAD9/wEAAAAAAAAAAAD+/wEAAAABAAAAAAD//wEAAAAAAAAAAAAAAAEAAAABAAAAAAABAAEAAAAAAAAAAAACAAEAAAABAAAAAAADAAAAAAAAAAAAAAAEAAAAAAABAAAAAAAFAP//AAAAAAAAAAAGAP//AAABAAAAAAAHAAAAAAAAAAAAAAAIAAAAAAABAAAAAAD7/wEAAAAAAAAAAAD8/wEAAAABAAAAAAD5/wAAAAAAAAAAAAD6/wAAAAABAAAAAAD3////AAAAAAAAAAD4////AAABAAAAAAAJAAAAAAAAAAAAAAAKAAAAAAABAAAAAAALAP//AAAAAAAAAAAMAP//AAABAAAAAAD1//7/AAAAAAAAAAD2//7/AAABAAAAAAABAAIAAAAAAAEAAAACAAIAAAABAAEAAAADAAEAAAAAAAEAAAAEAAEAAAABAAEAAAADAAIAAAAAAAEAAAAEAAIAAAABAAEAAAAFAAAAAAAAAAEAAAAGAAAAAAABAAEAAAAFAAEAAAAAAAEAAAAGAAEAAAABAAEAAAAFAAIAAAAAAAEAAAAGAAIAAAABAAEAAAAHAAEAAAAAAAEAAAAIAAEAAAABAAEAAAAHAAIAAAAAAAEAAAAIAAIAAAABAAEAAAAJAAEAAAAAAAEAAAAKAAEAAAABAAEAAAAJAAIAAAAAAAEAAAAKAAIAAAABAAEAAAD//wIAAAAAAAEAAAAAAAIAAAABAAEAAAD9/wIAAAAAAAEAAAD+/wIAAAABAAEAAAD7/wIAAAAAAAEAAAD8/wIAAAABAAEAAAD5/wEAAAAAAAEAAAD6/wEAAAABAAEAAAD5/wIAAAAAAAEAAAD6/wIAAAABAAEAAAD3/wAAAAAAAAEAAAD4/wAAAAABAAEAAAD3/wEAAAAAAAEAAAD4/wEAAAABAAEAAAD3/wIAAAAAAAEAAAD4/wIAAAABAAEAAAD1////AAAAAAEAAAD2////AAABAAEAAAD1/wAAAAAAAAEAAAD2/wAAAAABAAEAAAD1/wEAAAAAAAEAAAD2/wEAAAABAAEAAAD1/wIAAAAAAAEAAAD2/wIAAAABAAEAAAALAAAAAAAAAAEAAAAMAAAAAAABAAEAAAALAAEAAAAAAAEAAAAMAAEAAAABAAEAAAALAAIAAAAAAAEAAAAMAAIAAAABAAEAAAD1/wMAAAAAAAEAAAD2/wMAAAABAAEAAAD3/wMAAAAAAAEAAAD4/wMAAAABAAEAAAD5/wMAAAAAAAEAAAD6/wMAAAABAAEAAAD7/wMAAAAAAAEAAAD8/wMAAAABAAEAAAD9/wMAAAAAAAEAAAD+/wMAAAABAAEAAAD//wMAAAAAAAEAAAAAAAMAAAABAAEAAAABAAMAAAAAAAEAAAACAAMAAAABAAEAAAADAAMAAAAAAAEAAAAEAAMAAAABAAEAAAAFAAMAAAAAAAEAAAAGAAMAAAABAAEAAAAHAAMAAAAAAAEAAAAIAAMAAAABAAEAAAAJAAMAAAAAAAEAAAAKAAMAAAABAAEAAAALAAMAAAAAAAEAAAAMAAMAAAABAAEAAAA=")
 tile_set = SubResource("TileSet_4d7sh")
 
