@@ -13,6 +13,7 @@
 [ext_resource type="AudioStream" uid="uid://cgrydim6k2yan" path="res://03_Step_grass_03.wav" id="9_0h7mo"]
 [ext_resource type="Texture2D" uid="uid://05itjv7m2puv" path="res://grass.png" id="9_4d7sh"]
 [ext_resource type="AudioStream" uid="uid://5gp6ufv4hp0r" path="res://gem-gather-stereo-reverb.wav" id="9_hqns4"]
+[ext_resource type="Texture2D" uid="uid://dxv3v7hbcw4jh" path="res://whisper floating.png" id="10_d2bti"]
 [ext_resource type="AudioStream" uid="uid://cxwhpeed2w1df" path="res://old city theme.ogg" id="14_nr8wp"]
 
 [sub_resource type="GDScript" id="GDScript_x0ka3"]
@@ -35,6 +36,7 @@ const SPEED = 50.0
 const JUMP_VELOCITY = -200.0
 
 @onready var _animated_sprite = $AnimatedSprite2D
+@onready var _animated_sprite2 = $AnimatedSprite2D2
 var idle_timer = 0
 var move_timer = 0
 var collected_whispers = []
@@ -44,8 +46,12 @@ var can_deposit = false
 var deposit_node = null
 
 func _process(delta: float) -> void:
+	_animated_sprite2.hide()
 	if can_deposit:
 		deposit()
+	if collected_whispers.size() != 0:
+		_animated_sprite2.show()
+		_animated_sprite2.play()
 	$RichTextLabel.text = \"[font_size=16][pulse freq=0.5]\"+str(collected_whispers.size())+\"[/pulse]\"
 
 func _physics_process(delta: float) -> void:
@@ -158,6 +164,49 @@ animations = [{
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0e48y"]
 size = Vector2(11, 24)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_flf07"]
+atlas = ExtResource("10_d2bti")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k73cj"]
+atlas = ExtResource("10_d2bti")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rjqkl"]
+atlas = ExtResource("10_d2bti")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fs4d3"]
+atlas = ExtResource("10_d2bti")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7vxoj"]
+atlas = ExtResource("10_d2bti")
+region = Rect2(128, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ei405"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_flf07")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k73cj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rjqkl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fs4d3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7vxoj")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_rj586"]
 atlas = ExtResource("7_d21ai")
@@ -308,8 +357,12 @@ bbcode_enabled = true
 
 [node name="AudioStreamPlayer2D3" type="AudioStreamPlayer2D" parent="Player" unique_id=1589822754]
 stream = ExtResource("9_0h7mo")
-volume_db = -20.0
+volume_db = -15.0
 autoplay = true
+
+[node name="AnimatedSprite2D2" type="AnimatedSprite2D" parent="Player" unique_id=353720620]
+sprite_frames = SubResource("SpriteFrames_ei405")
+frame_progress = 0.5560665
 
 [node name="Whisper" type="Area2D" parent="." unique_id=629463437]
 z_index = 1

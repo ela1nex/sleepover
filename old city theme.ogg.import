@@ -12,7 +12,7 @@ dest_files=["res://.godot/imported/old city theme.ogg-967b7cb00dfd5068bb08b2ab8c
 
 [params]
 
-loop=false
+loop=true
 loop_offset=0
 bpm=0
 beat_count=0
