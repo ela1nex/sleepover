@@ -22,7 +22,7 @@ script/source = "extends Node2D
 
 var whisper_scene = preload(\"res://Whisper.tscn\")
 var tree_scene = preload(\"res://Tree.tscn\")
-@export var whispers = 15
+@export var whispers = 10
 var walkable_tiles = []
 @onready var map_layer = $World/Node2D/Walkable
 var cell_size = Vector2(16, 16)
@@ -35,7 +35,7 @@ func _ready():
 
 @onready var mat = $Player/CanvasLayer/ColorRect.material 
 func update_state(amount): 
-	var t = clamp(amount / 15.0, 0.0, 1.0) 
+	var t = clamp(amount / 10.0, 0.0, 1.0) 
 	t = t * t 
 	mat.set_shader_parameter(\"color_amount\", t)
 
@@ -44,7 +44,7 @@ func spawn_whispers(cell_size: Vector2):
 		print(\"no tiles\")
 		return
 	for i in range(whispers):
-		var cell = walkable_tiles[randi() % walkable_tiles.size()]
+		var cell = walkable_tiles[i]
 		var world_pos = Vector2()
 		world_pos.x = (cell.x + 0.5) * cell_size.x
 		world_pos.y = (cell.y) * cell_size.y
@@ -65,7 +65,7 @@ const JUMP_VELOCITY = -200.0
 var idle_timer = 0
 var move_timer = 0
 var collected_whispers = []
-@export var max_whispers = 5
+@export var max_whispers = 3
 var total_deposited = 0
 var can_deposit = false
 var deposit_node = null
@@ -80,10 +80,17 @@ func _process(delta: float) -> void:
 	$RichTextLabel.text = \"[font_size=16][pulse freq=0.5]\"+str(collected_whispers.size())+\"[/pulse]\"
 
 func _physics_process(delta: float) -> void:
-	# Add the gravity.
+	var map_rect = get_node(\"/root/Node2D/World/Node2D/Map\").get_used_rect()
+	var cell_size = Vector2(16,16) 
+
+	var min_pos = Vector2(map_rect.position) * cell_size
+	var max_pos = Vector2(map_rect.position + map_rect.size) * cell_size
+
+	position.x = clamp(position.x, min_pos.x, max_pos.x)
+	
 	if not is_on_floor():
 		velocity += get_gravity() * delta
-
+	
 	# Handle jump.
 	if Input.is_action_just_pressed(\"ui_accept\") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
@@ -324,9 +331,9 @@ func _on_body_exited(body):
 		body.set_deposit_zone(false, self)
 
 func update_world(amount):
-	if amount >= 7:
+	if amount >= 5:
 		_animated_sprite.frame = 1
-	if amount >= 12:
+	if amount >= 8:
 		_animated_sprite.frame = 2
 	world.update_state(amount)
 	tree.update_state(amount)
@@ -408,6 +415,16 @@ texture = ExtResource("9_4d7sh")
 [sub_resource type="TileSet" id="TileSet_ta5nu"]
 sources/0 = SubResource("TileSetAtlasSource_d2bti")
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ta5nu"]
+texture = ExtResource("9_4d7sh")
+0:0/0 = 0
+1:0/0 = 0
+0:1/0 = 0
+1:1/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_flf07"]
+sources/0 = SubResource("TileSetAtlasSource_ta5nu")
+
 [sub_resource type="GDScript" id="GDScript_ta5nu"]
 script/source = "extends AnimatedSprite2D
 
@@ -421,9 +438,9 @@ func _process(delta: float) -> void:
 	pass
 
 func update_state(amount):
-	if amount >= 7:
+	if amount >= 5:
 		self.frame = 1
-	if amount >= 12:
+	if amount >= 8:
 		self.frame = 2
 "
 
@@ -452,7 +469,7 @@ volume_db = -10.0
 
 [node name="AudioStreamPlayer2D2" type="AudioStreamPlayer2D" parent="Player" unique_id=1955186550]
 stream = ExtResource("8_x0ka3")
-volume_db = -25.0
+volume_db = -30.0
 
 [node name="RichTextLabel" type="RichTextLabel" parent="Player" unique_id=961201382]
 offset_left = -81.0
@@ -464,7 +481,7 @@ bbcode_enabled = true
 
 [node name="AudioStreamPlayer2D3" type="AudioStreamPlayer2D" parent="Player" unique_id=1589822754]
 stream = ExtResource("9_0h7mo")
-volume_db = -7.0
+volume_db = -15.0
 autoplay = true
 
 [node name="AnimatedSprite2D2" type="AnimatedSprite2D" parent="Player" unique_id=353720620]
@@ -518,8 +535,12 @@ tile_set = SubResource("TileSet_4d7sh")
 
 [node name="Walkable" type="TileMapLayer" parent="World/Node2D" unique_id=58371571]
 visible = false
-tile_map_data = PackedByteArray("AAAJAAAAAAAAAAEAAADw//7/AAAAAAEAAADo////AAAAAAEAAADi//3/AAAAAAEAAAAQAP//AAAAAAEAAAD0//7/AAAAAAEAAAA=")
+tile_map_data = PackedByteArray("AAAJAAAAAAAAAAEAAADw//7/AAAAAAEAAADo////AAAAAAEAAAD0//7/AAAAAAEAAAAOAP//AAAAAAEAAAASAP//AAAAAAEAAAAXAAEAAAAAAAEAAADj//3/AAAAAAEAADDg//7/AAAAAAEAADD5/wAAAAAAAAEAAAA=")
 tile_set = SubResource("TileSet_ta5nu")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="World/Node2D" unique_id=98830530]
+tile_map_data = PackedByteArray("AADd//7/AAAAAAAAAADe//7/AAABAAAAAADb//7/AAAAAAAAAADc//7/AAABAAAAAADZ//7/AAAAAAAAAADa//7/AAABAAAAAADZ////AAAAAAEAAADa////AAABAAEAAADZ/wAAAAAAAAEAAADa/wAAAAABAAEAAADZ/wEAAAAAAAEAAADa/wEAAAABAAEAAADZ/wIAAAAAAAEAAADa/wIAAAABAAEAAADZ/wMAAAAAAAEAAADa/wMAAAABAAEAAADb////AAAAAAEAAADc////AAABAAEAAADb/wAAAAAAAAEAAADc/wAAAAABAAEAAADb/wEAAAAAAAEAAADc/wEAAAABAAEAAADb/wIAAAAAAAEAAADc/wIAAAABAAEAAADb/wMAAAAAAAEAAADc/wMAAAABAAEAAADd////AAAAAAEAAADe////AAABAAEAAADd/wAAAAAAAAEAAADe/wAAAAABAAEAAADd/wEAAAAAAAEAAADe/wEAAAABAAEAAADd/wIAAAAAAAEAAADe/wIAAAABAAEAAADd/wMAAAAAAAEAAADe/wMAAAABAAEAAAAZAAIAAAAAAAEAAAAaAAIAAAABAAEAAAAZAAMAAAAAAAEAAAAaAAMAAAABAAEAAAAbAAIAAAAAAAEAAAAcAAIAAAABAAEAAAAbAAMAAAAAAAEAAAAcAAMAAAABAAEAAAAdAAIAAAAAAAEAAAAeAAIAAAABAAEAAAAdAAMAAAAAAAEAAAAeAAMAAAABAAEAAAAZAAEAAAAAAAAAAAAaAAEAAAABAAAAAAAbAAEAAAAAAAAAAAAcAAEAAAABAAAAAAAdAAEAAAAAAAAAAAAeAAEAAAABAAAAAAA=")
+tile_set = SubResource("TileSet_flf07")
 
 [node name="AnimatedSprite2D" parent="World/Node2D" unique_id=2079079639 instance=ExtResource("15_flf07")]
 position = Vector2(-214, -64)
