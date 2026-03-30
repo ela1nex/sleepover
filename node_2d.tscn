@@ -52,6 +52,7 @@ func spawn_whispers(cell_size: Vector2):
 		var w = whisper_scene.instantiate()
 		w.position = world_pos
 <<<<<<< HEAD
+<<<<<<< HEAD
 		self.add_child(w)
 		w.connect(\"first_collected\", Callable(self, \"_on_first_whisper\"))
 
@@ -76,6 +77,9 @@ func _on_first_whisper():
 	#messages = first_time_messages
 	#active_index = 0
 	#show_next_message()
+=======
+		$Node2D.add_child(w)
+>>>>>>> parent of 806ed5e (dialogue)
 =======
 		$Node2D.add_child(w)
 >>>>>>> parent of 806ed5e (dialogue)
@@ -167,6 +171,7 @@ func deposit():
 		$AudioStreamPlayer2D2.play()
 		deposit_node.update_world(total_deposited)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 func update_message(message: String) -> void:
 	dialogue.text = message
@@ -185,6 +190,8 @@ func _input(event: InputEvent) -> void:
 			dialogue.visible_characters = dialogue.text.length()
 		else:
 			emit_signal(\"message_completed\")
+=======
+>>>>>>> parent of 806ed5e (dialogue)
 =======
 >>>>>>> parent of 806ed5e (dialogue)
 "
