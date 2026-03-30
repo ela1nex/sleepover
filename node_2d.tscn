@@ -6,7 +6,6 @@
 [ext_resource type="Texture2D" uid="uid://3cnp5bdy6152" path="res://addons/addons/frame_3_delay-0.5s.png" id="5_4d7sh"]
 [ext_resource type="Texture2D" uid="uid://ccxcskjim4t5r" path="res://walking.png" id="6_hqns4"]
 [ext_resource type="Texture2D" uid="uid://cylna6xeqqw8b" path="res://addons/addons/frame_4_delay-0.5s.png" id="6_ir8iy"]
-[ext_resource type="Texture2D" uid="uid://d3s8vwf8m0bp" path="res://well2.png" id="8_4d7sh"]
 [ext_resource type="AudioStream" uid="uid://byculjeqgssnr" path="res://health_restore.wav" id="8_x0ka3"]
 [ext_resource type="AudioStream" uid="uid://cgrydim6k2yan" path="res://03_Step_grass_03.wav" id="9_0h7mo"]
 [ext_resource type="Texture2D" uid="uid://05itjv7m2puv" path="res://grass.png" id="9_4d7sh"]
@@ -14,12 +13,15 @@
 [ext_resource type="Texture2D" uid="uid://dxv3v7hbcw4jh" path="res://whisper floating.png" id="10_d2bti"]
 [ext_resource type="PackedScene" uid="uid://xwdk5ujmbvdy" path="res://whisper.tscn" id="12_d2bti"]
 [ext_resource type="AudioStream" uid="uid://cxwhpeed2w1df" path="res://old city theme.ogg" id="14_nr8wp"]
+[ext_resource type="Texture2D" uid="uid://celme7e3gfivp" path="res://wellwellwell.png" id="14_ta5nu"]
+[ext_resource type="PackedScene" uid="uid://bai1i5c770fyr" path="res://tree.tscn" id="15_flf07"]
 [ext_resource type="Texture2D" uid="uid://bwuf2bxrqafki" path="res://bg.png" id="15_ta5nu"]
 
 [sub_resource type="GDScript" id="GDScript_x0ka3"]
 script/source = "extends Node2D
 
 var whisper_scene = preload(\"res://Whisper.tscn\")
+var tree_scene = preload(\"res://Tree.tscn\")
 @export var whispers = 15
 var walkable_tiles = []
 @onready var map_layer = $World/Node2D/Walkable
@@ -301,12 +303,13 @@ shader_parameter/color_amount = 0.0
 [sub_resource type="GDScript" id="GDScript_ir8iy"]
 script/source = "extends Area2D
 
-@onready var world = get_node(\"/root/Node2D\")
+@onready var world = get_node(\"/root/Node2D/\")
+@onready var tree = get_node(\"/root/Node2D/World\")
+@onready var _animated_sprite = $AnimatedSprite2D
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
-
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -321,15 +324,48 @@ func _on_body_exited(body):
 		body.set_deposit_zone(false, self)
 
 func update_world(amount):
+	if amount >= 7:
+		_animated_sprite.frame = 1
+	if amount >= 12:
+		_animated_sprite.frame = 2
 	world.update_state(amount)
+	tree.update_state(amount)
 "
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rj586"]
 size = Vector2(44, 54)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_1fr6y"]
+atlas = ExtResource("14_ta5nu")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2hxjc"]
+atlas = ExtResource("14_ta5nu")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ebxd8"]
+atlas = ExtResource("14_ta5nu")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_2u7jv"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1fr6y")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2hxjc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ebxd8")
+}],
+"loop": true,
+"name": &"default",
+"speed": 3.0
+}]
+
 [sub_resource type="GDScript" id="GDScript_hqns4"]
 script/source = "extends Node2D
-
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -341,7 +377,8 @@ func _process(delta: float) -> void:
 	pass
 
 func update_state(amount):
-	pass
+	$Node2D/AnimatedSprite2D.update_state(amount)
+	$Node2D/AnimatedSprite2D2.update_state(amount)
 "
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_ta5nu"]
@@ -371,6 +408,25 @@ texture = ExtResource("9_4d7sh")
 [sub_resource type="TileSet" id="TileSet_ta5nu"]
 sources/0 = SubResource("TileSetAtlasSource_d2bti")
 
+[sub_resource type="GDScript" id="GDScript_ta5nu"]
+script/source = "extends AnimatedSprite2D
+
+# Called when the node enters the scene tree for the first time.
+func _ready() -> void:
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta: float) -> void:
+	pass
+
+func update_state(amount):
+	if amount >= 7:
+		self.frame = 1
+	if amount >= 12:
+		self.frame = 2
+"
+
 [node name="Node2D" type="Node2D" unique_id=1150385625]
 script = SubResource("GDScript_x0ka3")
 
@@ -396,7 +452,7 @@ volume_db = -10.0
 
 [node name="AudioStreamPlayer2D2" type="AudioStreamPlayer2D" parent="Player" unique_id=1955186550]
 stream = ExtResource("8_x0ka3")
-volume_db = -20.0
+volume_db = -25.0
 
 [node name="RichTextLabel" type="RichTextLabel" parent="Player" unique_id=961201382]
 offset_left = -81.0
@@ -408,7 +464,7 @@ bbcode_enabled = true
 
 [node name="AudioStreamPlayer2D3" type="AudioStreamPlayer2D" parent="Player" unique_id=1589822754]
 stream = ExtResource("9_0h7mo")
-volume_db = -15.0
+volume_db = -7.0
 autoplay = true
 
 [node name="AnimatedSprite2D2" type="AnimatedSprite2D" parent="Player" unique_id=353720620]
@@ -442,13 +498,13 @@ position = Vector2(20, 16)
 [node name="Deposit" type="Area2D" parent="." unique_id=1133267422]
 script = SubResource("GDScript_ir8iy")
 
-[node name="Sprite2D" type="Sprite2D" parent="Deposit" unique_id=950003289]
-position = Vector2(-36, -10)
-texture = ExtResource("8_4d7sh")
-
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Deposit" unique_id=290177445]
 position = Vector2(-36, -11)
 shape = SubResource("RectangleShape2D_rj586")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="Deposit" unique_id=627851833]
+position = Vector2(-36, -10)
+sprite_frames = SubResource("SpriteFrames_2u7jv")
 
 [node name="World" type="Node2D" parent="." unique_id=1058849910]
 script = SubResource("GDScript_hqns4")
@@ -457,12 +513,21 @@ script = SubResource("GDScript_hqns4")
 
 [node name="Map" type="TileMapLayer" parent="World/Node2D" unique_id=1604279617]
 material = SubResource("CanvasItemMaterial_ta5nu")
-tile_map_data = PackedByteArray("AAD9/wEAAAAAAAAAAAD+/wEAAAABAAAAAAD//wEAAAAAAAAAAAAAAAEAAAABAAAAAAABAAEAAAAAAAAAAAACAAEAAAABAAAAAAADAAAAAAAAAAAAAAAEAAAAAAABAAAAAAAFAP//AAAAAAAAAAAGAP//AAABAAAAAAAHAAAAAAAAAAAAAAAIAAAAAAABAAAAAAD7/wEAAAAAAAAAAAD8/wEAAAABAAAAAAD5/wAAAAAAAAAAAAD6/wAAAAABAAAAAAD3////AAAAAAAAAAD4////AAABAAAAAAAJAAAAAAAAAAAAAAAKAAAAAAABAAAAAAALAP//AAAAAAAAAAAMAP//AAABAAAAAAD1//7/AAAAAAAAAAD2//7/AAABAAAAAAABAAIAAAAAAAEAAAACAAIAAAABAAEAAAADAAEAAAAAAAEAAAAEAAEAAAABAAEAAAADAAIAAAAAAAEAAAAEAAIAAAABAAEAAAAFAAAAAAAAAAEAAAAGAAAAAAABAAEAAAAFAAEAAAAAAAEAAAAGAAEAAAABAAEAAAAFAAIAAAAAAAEAAAAGAAIAAAABAAEAAAAHAAEAAAAAAAEAAAAIAAEAAAABAAEAAAAHAAIAAAAAAAEAAAAIAAIAAAABAAEAAAAJAAEAAAAAAAEAAAAKAAEAAAABAAEAAAAJAAIAAAAAAAEAAAAKAAIAAAABAAEAAAD//wIAAAAAAAEAAAAAAAIAAAABAAEAAAD9/wIAAAAAAAEAAAD+/wIAAAABAAEAAAD7/wIAAAAAAAEAAAD8/wIAAAABAAEAAAD5/wEAAAAAAAEAAAD6/wEAAAABAAEAAAD5/wIAAAAAAAEAAAD6/wIAAAABAAEAAAD3/wAAAAAAAAEAAAD4/wAAAAABAAEAAAD3/wEAAAAAAAEAAAD4/wEAAAABAAEAAAD3/wIAAAAAAAEAAAD4/wIAAAABAAEAAAD1////AAAAAAEAAAD2////AAABAAEAAAD1/wAAAAAAAAEAAAD2/wAAAAABAAEAAAD1/wEAAAAAAAEAAAD2/wEAAAABAAEAAAD1/wIAAAAAAAEAAAD2/wIAAAABAAEAAAALAAAAAAAAAAEAAAAMAAAAAAABAAEAAAALAAEAAAAAAAEAAAALAAIAAAAAAAEAAAAMAAIAAAABAAEAAAD1/wMAAAAAAAEAAAD2/wMAAAABAAEAAAD3/wMAAAAAAAEAAAD4/wMAAAABAAEAAAD5/wMAAAAAAAEAAAD6/wMAAAABAAEAAAD7/wMAAAAAAAEAAAD8/wMAAAABAAEAAAD9/wMAAAAAAAEAAAD+/wMAAAABAAEAAAD//wMAAAAAAAEAAAAAAAMAAAABAAEAAAABAAMAAAAAAAEAAAACAAMAAAABAAEAAAADAAMAAAAAAAEAAAAEAAMAAAABAAEAAAAFAAMAAAAAAAEAAAAGAAMAAAABAAEAAAAHAAMAAAAAAAEAAAAIAAMAAAABAAEAAAAJAAMAAAAAAAEAAAAKAAMAAAABAAEAAAALAAMAAAAAAAEAAAAMAAMAAAABAAEAAAAMAAEAAAABAAEAAAA=")
+tile_map_data = PackedByteArray("AAD9/wEAAAAAAAAAAAD+/wEAAAABAAAAAAD//wEAAAAAAAAAAAAAAAEAAAABAAAAAAABAAEAAAAAAAAAAAACAAEAAAABAAAAAAADAAAAAAAAAAAAAAAEAAAAAAABAAAAAAAFAP//AAAAAAAAAAAGAP//AAABAAAAAAAHAAAAAAAAAAAAAAAIAAAAAAABAAAAAAD7/wEAAAAAAAAAAAD8/wEAAAABAAAAAAD5/wAAAAAAAAAAAAD6/wAAAAABAAAAAAD3////AAAAAAAAAAD4////AAABAAAAAAAJAAAAAAAAAAAAAAAMAP//AAABAAAAAAD1//7/AAAAAAAAAAD2//7/AAABAAAAAAABAAIAAAAAAAEAAAACAAIAAAABAAEAAAADAAEAAAAAAAEAAAAEAAEAAAABAAEAAAADAAIAAAAAAAEAAAAEAAIAAAABAAEAAAAFAAAAAAAAAAEAAAAGAAAAAAABAAEAAAAFAAEAAAAAAAEAAAAGAAEAAAABAAEAAAAFAAIAAAAAAAEAAAAGAAIAAAABAAEAAAAHAAEAAAAAAAEAAAAIAAEAAAABAAEAAAAHAAIAAAAAAAEAAAAIAAIAAAABAAEAAAAJAAEAAAAAAAEAAAAKAAEAAAABAAEAAAAJAAIAAAAAAAEAAAAKAAIAAAABAAEAAAD//wIAAAAAAAEAAAAAAAIAAAABAAEAAAD9/wIAAAAAAAEAAAD+/wIAAAABAAEAAAD7/wIAAAAAAAEAAAD8/wIAAAABAAEAAAD5/wEAAAAAAAEAAAD6/wEAAAABAAEAAAD5/wIAAAAAAAEAAAD6/wIAAAABAAEAAAD3/wAAAAAAAAEAAAD4/wAAAAABAAEAAAD3/wEAAAAAAAEAAAD4/wEAAAABAAEAAAD3/wIAAAAAAAEAAAD4/wIAAAABAAEAAAD1////AAAAAAEAAAD2////AAABAAEAAAD1/wAAAAAAAAEAAAD2/wAAAAABAAEAAAD1/wEAAAAAAAEAAAD2/wEAAAABAAEAAAD1/wIAAAAAAAEAAAD2/wIAAAABAAEAAAALAAAAAAAAAAAAAAAMAAAAAAABAAEAAAALAAEAAAAAAAEAAAALAAIAAAAAAAEAAAAMAAIAAAABAAEAAAD1/wMAAAAAAAEAAAD2/wMAAAABAAEAAAD3/wMAAAAAAAEAAAD4/wMAAAABAAEAAAD5/wMAAAAAAAEAAAD6/wMAAAABAAEAAAD7/wMAAAAAAAEAAAD8/wMAAAABAAEAAAD9/wMAAAAAAAEAAAD+/wMAAAABAAEAAAD//wMAAAAAAAEAAAAAAAMAAAABAAEAAAABAAMAAAAAAAEAAAACAAMAAAABAAEAAAADAAMAAAAAAAEAAAAEAAMAAAABAAEAAAAFAAMAAAAAAAEAAAAGAAMAAAABAAEAAAAHAAMAAAAAAAEAAAAIAAMAAAABAAEAAAAJAAMAAAAAAAEAAAAKAAMAAAABAAEAAAALAAMAAAAAAAEAAAAMAAMAAAABAAEAAAAMAAEAAAABAAEAAADz//7/AAAAAAAAAAD0//7/AAABAAAAAADx//7/AAAAAAAAAADy//7/AAABAAAAAAANAP//AAAAAAAAAAAOAP//AAABAAAAAAAQAP//AAABAAAAAAARAP//AAAAAAAAAAAPAP//AAAAAAAAAAASAP//AAABAAAAAAATAP//AAAAAAAAAAAUAP//AAABAAAAAAAVAAAAAAAAAAAAAAAWAAAAAAABAAAAAAAXAAEAAAAAAAAAAAAYAAEAAAABAAAAAADv//7/AAAAAAAAAADw//7/AAABAAAAAADt////AAAAAAAAAADu////AAABAAAAAADr/wAAAAAAAAAAAADs/wAAAAABAAAAAADp/wAAAAAAAAAAAADq/wAAAAABAAAAAADn////AAAAAAAAAADo////AAABAAAAAADl//7/AAAAAAAAAADm//7/AAABAAAAAADj//3/AAAAAAAAAADk//3/AAABAAAAAADh//3/AAAAAAAAAADi//3/AAABAAAAAADf//7/AAAAAAAAAADg//7/AAABAAAAAADf////AAAAAAEAAADg////AAABAAEAAADf/wAAAAAAAAEAAADg/wAAAAABAAEAAADf/wEAAAAAAAEAAADg/wEAAAABAAEAAADf/wIAAAAAAAEAAADg/wIAAAABAAEAAADf/wMAAAAAAAEAAADg/wMAAAABAAEAAADh//7/AAAAAAEAAADi//7/AAABAAEAAADh////AAAAAAEAAADi////AAABAAEAAADh/wAAAAAAAAEAAADi/wAAAAABAAEAAADh/wEAAAAAAAEAAADi/wEAAAABAAEAAADh/wIAAAAAAAEAAADi/wIAAAABAAEAAADh/wMAAAAAAAEAAADi/wMAAAABAAEAAADy////AAAAAAEAAADz////AAAAAAEAAADy/wAAAAAAAAEAAADz/wAAAAAAAAEAAADy/wEAAAAAAAEAAADz/wEAAAAAAAEAAADy/wIAAAAAAAEAAADz/wIAAAAAAAEAAADy/wMAAAAAAAEAAADz/wMAAAAAAAEAAAD0////AAABAAEAAAD0/wAAAAABAAEAAAD0/wEAAAABAAEAAAD0/wIAAAABAAEAAAD0/wMAAAABAAEAAADw////AAABAAEAAADx////AAABAAEAAADw/wAAAAABAAEAAADx/wAAAAABAAEAAADw/wEAAAABAAEAAADx/wEAAAABAAEAAADw/wIAAAABAAEAAADx/wIAAAABAAEAAADw/wMAAAABAAEAAADx/wMAAAABAAEAAADv////AAAAAAEAAADv/wAAAAAAAAEAAADv/wEAAAAAAAEAAADv/wIAAAAAAAEAAADv/wMAAAAAAAEAAADt/wAAAAAAAAEAAADu/wAAAAABAAEAAADt/wEAAAAAAAEAAADu/wEAAAABAAEAAADt/wIAAAAAAAEAAADu/wIAAAABAAEAAADt/wMAAAAAAAEAAADu/wMAAAABAAEAAADr/wEAAAAAAAEAAADs/wEAAAABAAEAAADr/wIAAAAAAAEAAADs/wIAAAABAAEAAADr/wMAAAAAAAEAAADs/wMAAAABAAEAAADp/wEAAAAAAAEAAADq/wEAAAABAAEAAADp/wIAAAAAAAEAAADq/wIAAAABAAEAAADp/wMAAAAAAAEAAADq/wMAAAABAAEAAADn/wAAAAAAAAEAAADo/wAAAAABAAEAAADn/wEAAAAAAAEAAADo/wEAAAABAAEAAADn/wIAAAAAAAEAAADo/wIAAAABAAEAAADn/wMAAAAAAAEAAADo/wMAAAABAAEAAADl////AAAAAAEAAADm////AAABAAEAAADl/wAAAAAAAAEAAADm/wAAAAABAAEAAADl/wEAAAAAAAEAAADm/wEAAAABAAEAAADl/wIAAAAAAAEAAADm/wIAAAABAAEAAADl/wMAAAAAAAEAAADm/wMAAAABAAEAAADj//7/AAAAAAEAAADk//7/AAABAAEAAADj////AAAAAAEAAADk////AAABAAEAAADj/wAAAAAAAAEAAADk/wAAAAABAAEAAADj/wEAAAAAAAEAAADk/wEAAAABAAEAAADj/wIAAAAAAAEAAADk/wIAAAABAAEAAADj/wMAAAAAAAEAAADk/wMAAAABAAEAAAANAAAAAAAAAAEAAAAOAAAAAAABAAEAAAANAAEAAAAAAAEAAAAOAAEAAAABAAEAAAANAAIAAAAAAAEAAAAOAAIAAAABAAEAAAANAAMAAAAAAAEAAAAOAAMAAAABAAEAAAAPAAAAAAAAAAEAAAAQAAAAAAABAAEAAAAPAAEAAAAAAAEAAAAQAAEAAAABAAEAAAAPAAIAAAAAAAEAAAAQAAIAAAABAAEAAAAPAAMAAAAAAAEAAAAQAAMAAAABAAEAAAARAAAAAAAAAAEAAAASAAAAAAABAAEAAAARAAEAAAAAAAEAAAASAAEAAAABAAEAAAARAAIAAAAAAAEAAAASAAIAAAABAAEAAAARAAMAAAAAAAEAAAASAAMAAAABAAEAAAATAAAAAAAAAAEAAAAUAAAAAAABAAEAAAATAAEAAAAAAAEAAAAUAAEAAAABAAEAAAATAAIAAAAAAAEAAAAUAAIAAAABAAEAAAATAAMAAAAAAAEAAAAUAAMAAAABAAEAAAAVAAEAAAAAAAEAAAAWAAEAAAABAAEAAAAVAAIAAAAAAAEAAAAWAAIAAAABAAEAAAAVAAMAAAAAAAEAAAAWAAMAAAABAAEAAAAXAAIAAAAAAAEAAAAYAAIAAAABAAEAAAAXAAMAAAAAAAEAAAAYAAMAAAABAAEAAAAKAAAAAAABAAAAAAA=")
 tile_set = SubResource("TileSet_4d7sh")
 
 [node name="Walkable" type="TileMapLayer" parent="World/Node2D" unique_id=58371571]
-tile_map_data = PackedByteArray("AAAGAP//AAABAAEAAAAHAAAAAAAAAAEAAAAIAAAAAAABAAEAAAAJAAAAAAAAAAEAAAAKAAAAAAABAAEAAAALAP//AAAAAAEAAAAMAP//AAABAAEAAAD5/wAAAAAAAAEAAAD3////AAAAAAEAAAD4////AAABAAEAAAD1//7/AAAAAAEAAAD2//7/AAABAAEAAAA=")
+visible = false
+tile_map_data = PackedByteArray("AAAJAAAAAAAAAAEAAADw//7/AAAAAAEAAADo////AAAAAAEAAADi//3/AAAAAAEAAAAQAP//AAAAAAEAAAD0//7/AAAAAAEAAAA=")
 tile_set = SubResource("TileSet_ta5nu")
+
+[node name="AnimatedSprite2D" parent="World/Node2D" unique_id=2079079639 instance=ExtResource("15_flf07")]
+position = Vector2(-214, -64)
+script = SubResource("GDScript_ta5nu")
+
+[node name="AnimatedSprite2D2" parent="World/Node2D" unique_id=2038308994 instance=ExtResource("15_flf07")]
+position = Vector2(264, -48)
+script = SubResource("GDScript_ta5nu")
 
 [node name="Node2D2" type="Node2D" parent="World" unique_id=409691625]
 
