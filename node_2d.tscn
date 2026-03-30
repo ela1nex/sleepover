@@ -20,8 +20,8 @@
 [sub_resource type="GDScript" id="GDScript_x0ka3"]
 script/source = "extends Node2D
 
-var whisper_scene = preload(\"res://Whisper.tscn\")
-var tree_scene = preload(\"res://Tree.tscn\")
+var whisper_scene = preload(\"res://whisper.tscn\")
+var tree_scene = preload(\"res://tree.tscn\")
 @export var whispers = 10
 var walkable_tiles = []
 @onready var map_layer = $World/Node2D/Walkable
@@ -189,13 +189,11 @@ func _on_timer_timeout() -> void:
 		type_timer.stop()
 
 func _input(event: InputEvent) -> void:
-	if event is InputEventKey:
-		var key_event := event as InputEventKey
-		if key_event.pressed and not key_event.echo and key_event.keycode == KEY_ENTER:
-			if dialogue.visible_characters < dialogue.text.length():
-				dialogue.visible_characters = dialogue.text.length()
-			else:
-				emit_signal(\"message_completed\")
+	if Input.is_action_just_pressed(\"interact\"):
+		if dialogue.visible_characters < dialogue.text.length():
+			dialogue.visible_characters = dialogue.text.length()
+		else:
+			emit_signal(\"message_completed\")
 "
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_0h7mo"]
@@ -562,6 +560,7 @@ offset_left = -82.0
 offset_top = -47.0
 offset_right = 84.0
 offset_bottom = 52.0
+mouse_filter = 2
 metadata/_edit_use_anchors_ = true
 
 [node name="RichTextLabel2" type="RichTextLabel" parent="Player" unique_id=397261073]
